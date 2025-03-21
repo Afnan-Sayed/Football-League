@@ -32,18 +32,17 @@ matches_of_team(Team, Matches):-       % the interface the user queries through
     % check if the team participated in the match either as team1 or team2
     match_participant(Team, T1, T2, G1, G2),   
 
-    % Create a tuple representing the match.
-    NewMatch = (T1, T2, G1, G2),          % Store the match as a tuple (Team1, Team2, Goals1, Goals2).
+    %create a list representing the match
+    NewMatch = [T1, T2, G1, G2],          %store the match as a list [Team1, Team2, Goals1, Goals2]
 
-    % Ensure the match is not already in the accumulator to avoid duplicates.
-    \+ member(NewMatch,MatchesGathered),             % true if NewMatch is not in Acc
+    %ensure the match is not already in the accumulator to avoid duplicates
+    not_my_member(NewMatch,MatchesGathered),         %true if NewMatch is not in Acc
     !,                                   
 
-    collect_matches(Team, Matches, [NewMatch | MatchesGathered]). % Add NewMatch to the accumulator and continue searching
+    collect_matches(Team, Matches, [NewMatch | MatchesGathered]). %Add NewMatch to the accumulator and continue searching
 
-% Base case 
+% BaseCase 
  collect_matches(_, Matches, Matches).     % When no more matches exist, return the accumulator as the result
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TASK5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
