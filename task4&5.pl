@@ -46,7 +46,19 @@ matches_of_team(Team, Matches):-       % the interface the user queries through
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TASK5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Predicate to count how many matches a team participated in
-num_matches_of_team(Team, Count) :-
-    matches_of_team(Team, Matches),       % Reuse Task 4 predicate
-    list_count(Matches, Count).           % Count elements in the list
+%%%%%%%%%%%% LIST_LENGTH %%%%%%%%%%%%
+list_length(L,N):-
+    list_length_acc(L, 0 ,N).
+
+%% BaseCase
+list_length_acc([], N ,N).
+
+%% RecursiveCase
+list_length_acc([_|T], N,Res):-
+    NewN is N+1,
+    list_length_acc(T,NewN,Res).
+
+%% count all matches where a specific team participated 
+num_matches_of_team(Team, N):-
+    matches_of_team(Team, Matches),      
+    list_length(Matches,N).
