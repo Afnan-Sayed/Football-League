@@ -169,7 +169,7 @@ top_scorer(Player):-        %% the interface the user queries through
     top_scorer_acc(Player,_ , 0).
 
 % RecursiveCase
-top_scorer_acc(Player ,_, MaxGoals):-
+top_scorer_acc(Player ,_, MaxGoals):-  % the second arguement is for the max player
     goals(CurPlayer,CurGoals),  
     CurGoals >MaxGoals,             
     !,                                 
