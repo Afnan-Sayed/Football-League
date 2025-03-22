@@ -1,84 +1,62 @@
 %%%%%%%%%%%% NOT_MY_MEMBER %%%%%%%%%%%%
-% Base Case
-not_my_member(_, []):-
-    !.
-
-% Recursive Case
-not_my_member(X, [H|T]):- 
+not_my_member(_, []) :- !.
+not_my_member(X, [H|T]) :- 
     X \= H, 
     not_my_member(X, T).
 
 %%%%%%%%%%%% MY_MEMBER %%%%%%%%%%%%
-% BaseCase
-my_member(X, [X|_]):-
-    !.
-
-% RecursiveCase
-my_member(X, [_|Tail]):-
+my_member(X, [X|_]) :- !.
+my_member(X, [_|Tail]) :- 
     my_member(X, Tail).
 
 
 most_common_position_in_team(Team, Pos):-
-    get_all_positions(Team, Positions),           %get all positions of players in the team
+    get_all_positions(Team, Positions),
+    remove_duplicates(Positions, UniquePos),
+    count_each_position(Positions, UniquePos,Counts),
+    find_highest_count_position(UniquePos,Counts, Pos), !.
 
-    remove_duplicates(Positions, UniquePositions),        %create a list of unique positions
+%%%%%%%%%%%% GET ALL POSITIONS %%%%%%%%%%%%
+get_all_positions(Team, Positions):-  %the interface the user queries through
+    findall(Pos, player(_, Team, Pos), Positions).
 
-    count_each_position(Positions, UniquePositions, Counts),    %count how many players are in each position
-    
-    find_highest_count_position(UniquePositions,Counts,Pos),    %position with the highest count
-     !.
-
-get_all_positions(Team, Positions):-   %the interface the user queries through
-    get_all_positions(Team, [], Positions).
-
-%RecursiveCase
-get_all_positions(Team, Acc, Positions):-
-    player(_, Team, Pos),  
-    not_my_member(Pos, Acc), 
-    get_all_positions(Team, [Pos|Acc], Positions).
+%%%%%%%%%%%% REMOVE DUPLICATES %%%%%%%%%%%%
 
 %BaseCase
-get_all_positions(_, Positions, Positions).  
+remove_duplicates([], []).
 
+remove_duplicates([H|T], Res):-
+    my_member(H, T),
+    remove_duplicates(T, Res).
+remove_duplicates([H|T], [H|Res]):-
+    not_my_member(H, T),
+    remove_duplicates(T, Res).
 
-%BaseCase
-remove_duplicates([], []).  
-
-remove_duplicates([Pos|Rest], UniquePositions):-
-    my_member(Pos, Rest),  
-    remove_duplicates(Rest, UniquePositions).
-
-remove_duplicates([Pos|Rest], [Pos|UniquePositions]):-
-   not_my_member(Pos,Rest), 
-    remove_duplicates(Rest, UniquePositions).
-
+%%%%%%%%%%%% COUNT EACH POSITION %%%%%%%%%%%%
 %BaseCase no positions left
+
 count_each_position(_, [], []).
 
-count_each_position(Positions, [Pos|UniquePositions], [Count|Counts]):-
-    count_occurrences(Positions, Pos, Count),  %count how many times position appears
-    count_each_position(Positions, UniquePositions, Counts).
+count_each_position(All, [Pos|Rest], [Count|Counts]) :-
+    count_occurrences(All, Pos, Count),
+    count_each_position(All, Rest, Counts).
 
 %BaseCase
-count_occurrences([], _, 0).  
-count_occurrences([Pos|Rest], Pos, Count):-
-    count_occurrences(Rest, Pos, TempCount),  
-    Count is TempCount+1.
+count_occurrences([], _, 0).
+count_occurrences([Pos|Rest], Pos, Count) :-
+    count_occurrences(Rest, Pos, Temp),
+     Count is Temp+1.
+ 
+count_occurrences([Other|Rest], Pos, Count) :-
+    Other \=Pos, %skipp if no match
+    count_occurrences(Rest, Pos, Count).
 
-count_occurrences([OtherPos|Rest], Pos, Count):-
-    OtherPos \= Pos,  %skip if the position does not match
-    count_occurrences(Rest , Pos,Count).
+%%%%%%%%%%%% FIND HIGHEST COUNT %%%%%%%%%%%%
 
+find_highest_count_position([P],[_], P).
 
-% BaseCase only one position left
-find_highest_count_position([Pos], _, Pos).
-
-% Case 1: Count1 > Count2
-find_highest_count_position([Pos1,_|Rest], [Count1, Count2|Counts],CommonPos):-
-    Count1 > Count2,  
-    find_highest_count_position([Pos1|Rest], [Count1|Counts],CommonPos).
-
-% Case 2: Count1 =< Count2
-find_highest_count_position([_, Pos2|Rest], [Count1, Count2|Counts], CommonPos):-
-    Count1 =< Count2, 
-    find_highest_count_position([Pos2|Rest],[Count2|Counts] ,  CommonPos).
+find_highest_count_position([P1,P2|PRest], [C1,C2|CRest], Res):-
+    (
+    C1>=C2 -> find_highest_count_position([P1|PRest],[C1|CRest],Res)
+    ;   find_highest_count_position([P2|PRest],[C2|CRest],Res)
+    ).
